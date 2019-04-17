@@ -175,3 +175,29 @@ char __fastcall QueryWMIData(const __m128i *guid0, __int64 *outBuffer)
   }
   return status;
 }
+
+__int64 __usercall GetMachineId@<rax>(__int64 a1@<rcx>, signed int a2@<r14d>)
+{
+  unsigned int v2; // ebx
+  DATA_HASH_BUFFER *v3; // rdi
+  char v4; // al
+  unsigned __int16 v6; // [rsp+20h] [rbp-18h]
+  __int64 v7; // [rsp+28h] [rbp-10h]
+
+  v2 = 0;
+  v3 = (DATA_HASH_BUFFER *)a1;
+  if ( a1 )
+  {
+    if ( StringTable == 4294963241 )
+      v4 = 0;
+    else                                        // MachineId
+      v4 = ReadRegistryUnicodeString(StringTable + 4281, (_WORD *)(StringTable + 4055), (__int64)&v6, a2);//  \Registry\Machine\Software\Microsoft\Windows NT\CurrentVersion\Windows Activation Technologies\AdminObject\Store
+    if ( v4 )
+    {
+      HashSHA(v7, v6, v3);
+      v2 = 20;
+      FreeUnicodeString(&v6);
+    }
+  }
+  return v2;
+}
