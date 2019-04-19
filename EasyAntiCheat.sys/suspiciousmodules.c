@@ -170,3 +170,35 @@ LABEL_30:
   }
   return v0;
 }
+
+bool __fastcall SomeModuleCheck(UNICODE_STRING *a1)
+{
+  UNICODE_STRING *v1; // rbx
+  __int64 v2; // rdi
+  bool result; // al
+
+  v1 = a1;
+  result = 0;
+  if ( a1 )
+  {
+    if ( a1->Buffer )
+    {
+      if ( a1->Length )
+      {
+        if ( a1->MaximumLength )
+        {
+          v2 = StringTable;
+          if ( CompareUnicodeStringsIgnoreCase(a1, (unsigned __int16 *)(StringTable + 8467))//  \System32\atmfd.dll
+            || CompareUnicodeStringsIgnoreCase(v1, (unsigned __int16 *)(v2 + 8507))//  \System32\cdd.dll
+            || CompareUnicodeStringsIgnoreCase(v1, (unsigned __int16 *)(v2 + 8543))// \System32\rdpdd.dll
+            || CompareUnicodeStringsIgnoreCase(v1, (unsigned __int16 *)(v2 + 8583))// \System32\vga.dll
+            || CompareUnicodeStringsIgnoreCase(v1, (unsigned __int16 *)(v2 + 8619)) )// \System32\workerdd.dll
+          {
+            result = 1;
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
