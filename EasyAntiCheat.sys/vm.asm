@@ -56,3 +56,60 @@
 .text:000000000001FDE6 C3                                      retn
 .text:000000000001FDE6                         ; } // starts at 1FD84
 .text:000000000001FDE6                         CheckVM         endp
+
+
+
+.text:000000000001FDF0 48 89 5C 24 08                          mov     [rsp+arg_0], rbx
+.text:000000000001FDF5 57                                      push    rdi
+.text:000000000001FDF6 48 83 EC 50                             sub     rsp, 50h
+.text:000000000001FDFA 83 64 24 20 00                          and     [rsp+58h+var_38], 0
+.text:000000000001FDFF 33 D2                                   xor     edx, edx        ; Val
+.text:000000000001FE01 48 8D 4C 24 24                          lea     rcx, [rsp+58h+Dst] ; Dst
+.text:000000000001FE06 44 8D 42 24                             lea     r8d, [rdx+24h]  ; Size
+.text:000000000001FE0A E8 11 72 01 00                          call    memset
+.text:000000000001FE0F 45 0F 20 C3                             mov     r11, cr8
+.text:000000000001FE13 B8 0F 00 00 00                          mov     eax, 0Fh
+.text:000000000001FE18 44 0F 22 C0                             mov     cr8, rax
+.text:000000000001FE1C 48 8B 7C 24 38                          mov     rdi, [rsp+58h+var_20]
+.text:000000000001FE21 44 8D 48 55                             lea     r9d, [rax+55h]
+.text:000000000001FE25 4D 8B D1                                mov     r10, r9
+.text:000000000001FE28
+.text:000000000001FE28                         loc_1FE28:                              ; CODE XREF: sub_1FDF0+70↓j
+.text:000000000001FE28 0F 31                                   rdtsc
+.text:000000000001FE2A 48 C1 E2 20                             shl     rdx, 20h
+.text:000000000001FE2E 48 0B C2                                or      rax, rdx
+.text:000000000001FE31 33 C9                                   xor     ecx, ecx
+.text:000000000001FE33 4C 8B C0                                mov     r8, rax
+.text:000000000001FE36 B8 01 00 00 00                          mov     eax, 1
+.text:000000000001FE3B 0F A2                                   cpuid
+.text:000000000001FE3D 89 44 24 20                             mov     [rsp+58h+var_38], eax
+.text:000000000001FE41 89 5C 24 24                             mov     [rsp+58h+Dst], ebx
+.text:000000000001FE45 89 4C 24 28                             mov     [rsp+58h+var_30], ecx
+.text:000000000001FE49 89 54 24 2C                             mov     [rsp+58h+var_2C], edx
+.text:000000000001FE4D 0F 31                                   rdtsc
+.text:000000000001FE4F 48 C1 E2 20                             shl     rdx, 20h
+.text:000000000001FE53 48 0B C2                                or      rax, rdx
+.text:000000000001FE56 49 2B C0                                sub     rax, r8
+.text:000000000001FE59 48 03 F8                                add     rdi, rax
+.text:000000000001FE5C 49 83 EA 01                             sub     r10, 1
+.text:000000000001FE60 75 C6                                   jnz     short loc_1FE28
+.text:000000000001FE62 48 8B 5C 24 40                          mov     rbx, [rsp+58h+var_18]
+.text:000000000001FE67 48 89 7C 24 38                          mov     [rsp+58h+var_20], rdi
+.text:000000000001FE6C
+.text:000000000001FE6C                         loc_1FE6C:                              ; CODE XREF: sub_1FDF0+9B↓j
+.text:000000000001FE6C 0F 31                                   rdtsc
+.text:000000000001FE6E 48 C1 E2 20                             shl     rdx, 20h
+.text:000000000001FE72 48 0B C2                                or      rax, rdx
+.text:000000000001FE75 48 8B C8                                mov     rcx, rax
+.text:000000000001FE78 0F 31                                   rdtsc
+.text:000000000001FE7A 48 C1 E2 20                             shl     rdx, 20h
+.text:000000000001FE7E 48 0B C2                                or      rax, rdx
+.text:000000000001FE81 48 2B C1                                sub     rax, rcx
+.text:000000000001FE84 48 03 D8                                add     rbx, rax
+.text:000000000001FE87 49 83 E9 01                             sub     r9, 1
+.text:000000000001FE8B 75 DF                                   jnz     short loc_1FE6C
+.text:000000000001FE8D 48 89 5C 24 40                          mov     [rsp+58h+var_18], rbx
+.text:000000000001FE92 41 0F B6 CB                             movzx   ecx, r11b
+.text:000000000001FE96 44 0F 22 C1                             mov     cr8, rcx
+.text:000000000001FE9A 48 8D 0D 4F 73 01 00                    lea     rcx, qword_371F0
+.text:000000000001FEA1 E9 B4 59 0A 00                          jmp     loc_C585A
