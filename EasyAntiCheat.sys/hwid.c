@@ -201,3 +201,30 @@ __int64 __usercall GetMachineId@<rax>(__int64 a1@<rcx>, signed int a2@<r14d>)
   }
   return v2;
 }
+
+char __usercall GetNtoskrnlProductVersion@<al>(UNICODE_STRING *outProductVersion@<rcx>, signed int a2@<r14d>)
+{
+  char v3; // di
+  __int64 resourceAddr; // [rsp+20h] [rbp-28h]
+  UNICODE_STRING path; // [rsp+28h] [rbp-20h]
+  unsigned int size; // [rsp+58h] [rbp+10h]
+  __int64 buffer; // [rsp+60h] [rbp+18h]
+  _IMAGE_NT_HEADERS64 *a4; // [rsp+68h] [rbp+20h]
+
+  v3 = 0;
+  if ( GetNtoskrnlPath(&path, a2) )
+  {
+    if ( ReadFileW(&path, &buffer, &size) )
+    {
+      if ( ValidatePeHeader((_IMAGE_DOS_HEADER *)buffer, size, 0i64, &a4)
+        && GetResourceSection(a4, buffer, &resourceAddr, &size) )
+      {
+        v3 = GetProductVersionFromResource(resourceAddr, size, outProductVersion);
+      }
+      if ( buffer )
+        FreePool(buffer);
+    }
+    FreeUnicodeString(&path);
+  }
+  return v3;
+}

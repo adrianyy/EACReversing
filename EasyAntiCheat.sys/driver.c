@@ -124,6 +124,121 @@ SYSTEM_MODULE_INFORMATION *__usercall LogAllLoadedDrivers@<rax>(signed int a1@<r
   return result;
 }
 
+__int64 __usercall IterateDirectoriesRecursive@<rax>(UNICODE_STRING *argPath@<rdx>, __int64 *outBuffer@<rcx>, unsigned int a3@<r8d>, unsigned int a4@<r9d>, signed int a5@<r14d>, char a6)
+{
+  unsigned int index; // ebp
+  __int64 directoryObject; // rbx
+  signed int status; // eax
+  OBJECT_DIRECTORY_INFORMATION *objectInfo; // rsi
+  bool isDirectory; // al MAPDST
+  bool isRoot; // bl
+  unsigned __int16 fullLength; // r8
+  DRIVER_OBJECT *driver; // rax MAPDST
+  __int64 v16; // rax
+  __int64 a6a; // [rsp+20h] [rbp-98h]
+  bool isDriver; // [rsp+40h] [rbp-78h]
+  int v21; // [rsp+44h] [rbp-74h]
+  UNICODE_STRING path; // [rsp+48h] [rbp-70h]
+  __int64 directoryHandle; // [rsp+58h] [rbp-60h]
+  UNICODE_STRING argPathCopy; // [rsp+60h] [rbp-58h]
+  OBJECT_ATTRIBUTES objectAttributes; // [rsp+70h] [rbp-48h]
+
+  index = 0;
+  v21 = 0;
+  if ( !outBuffer )
+    return 0i64;
+  if ( !argPath )
+    return 0i64;
+  if ( !argPath->Buffer )
+    return 0i64;
+  if ( !argPath->Length )
+    return 0i64;
+  if ( !argPath->MaximumLength )
+    return 0i64;
+  if ( !a3 )
+    return 0i64;
+  if ( !a4 )
+    return 0i64;
+  directoryObject = GetDirectoryObjectType(a5);
+  if ( !directoryObject || !AllocateCopyUnicodeString((__int64)&argPathCopy, argPath) )
+    return 0i64;
+  objectAttributes.Length = 48;
+  objectAttributes.RootDirectory = 0i64;
+  objectAttributes.ObjectName = &argPathCopy;
+  objectAttributes.Attributes = 512;
+  objectAttributes.SecurityDescriptor = 0i64;
+  objectAttributes.SecurityQualityOfService = 0i64;
+  if ( import_ObOpenObjectByName )
+    status = import_ObOpenObjectByName(&objectAttributes, directoryObject, 0i64, 0i64, 1, 0i64, &directoryHandle);
+  else
+    status = 0xC0000002;
+  if ( status >= 0 )
+  {
+    objectInfo = (OBJECT_DIRECTORY_INFORMATION *)AllocatePool(1024i64);
+    if ( objectInfo )
+    {
+      if ( a3 > 0 )
+      {
+        do
+        {
+          LOBYTE(a6a) = 0;
+          if ( (signed int)GetNextDirectoryObject((__int64)objectInfo, directoryHandle, 0x400u, a5, a6a, (__int64)&v21) < 0 )
+            break;
+          isDriver = CompareUnicodeStrings((__int64)&objectInfo->TypeName, (_WORD *)(StringTable + 1247)) == 0;// Driver
+          isDirectory = CompareUnicodeStrings((__int64)&objectInfo->TypeName, (_WORD *)(StringTable + 1261)) == 0;// Directory
+          if ( (isDriver || isDirectory)
+            && argPath->Buffer
+            && argPath->Length
+            && argPath->MaximumLength
+            && objectInfo->Name.Buffer
+            && objectInfo->Name.Length
+            && objectInfo->Name.MaximumLength )
+          {
+            isRoot = CompareUnicodeStrings((__int64)argPath, (_WORD *)(StringTable + 1217)) == 0;// \
+            fullLength = objectInfo->Name.Length + argPath->Length;
+            if ( !isRoot )
+              fullLength += 2;
+            if ( AllocatePoolForUnicodeString((__int64)&path, argPath, fullLength) )
+            {
+              if ( !isRoot && StringTable != 4294966079 )
+                CopyUnicodeString(&path, StringTable + 1217);// \
+              if ( (signed int)AppendUnicodeString(&path, objectInfo) >= 0 )
+              {
+                if ( isDirectory && a4 > 0 )
+                {
+                  index += IterateDirectoriesRecursive(&path, &outBuffer[index], a3 - index, a4 - 1, a5, a6);
+                }
+                else if ( isDriver )
+                {
+                  driver = (DRIVER_OBJECT *)OpenDriver(&path.Length);
+                  if ( driver )
+                  {
+                    if ( !a6 || driver->DriverSection && driver->DriverStart && driver->DriverSize )
+                    {
+                      v16 = index++;
+                      outBuffer[v16] = (__int64)driver;
+                    }
+                    else
+                    {
+                      ObfDereferenceObject(driver);
+                    }
+                  }
+                }
+              }
+              FreeUnicodeString(&path);
+            }
+          }
+        }
+        while ( index < a3 );
+      }
+      FreePool((__int64)objectInfo);
+    }
+    CloseHandle(directoryHandle, a5);
+  }
+  FreeUnicodeString(&argPathCopy);
+  return index;
+}
+
 char __usercall CheckDriverObjects@<al>(_QWORD *a1@<rcx>, _DWORD *a2@<rdx>, __int64 detectionBuffer@<r8>, signed int a4@<r14d>)
 {
   char v4; // bl
